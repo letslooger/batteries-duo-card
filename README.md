@@ -4,6 +4,8 @@ A Home Assistant card to compare two (or more) LiFePO4 batteries in parallel, ea
 
 🇫🇷 Version française : [LISEZMOI.md](LISEZMOI.md)
 
+🎬 Video (in French): [2 batteries in parallel: why does one always drain faster?](https://youtu.be/lwJmwtKwEvQ)
+
 <p align="center"><img src="images/carte.png" width="460" alt="The full card"></p>
 
 ## Why

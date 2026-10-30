@@ -1,0 +1,33 @@
+# Carte « Batteries duo » — à coller dans une carte Manuel (YAML)
+#
+# La carte lit les capteurs du composant ESPHome esphome-jk-bms (jk_bms_ble).
+# Chaque batterie est repérée par son « prefix » : le début du nom de ses entités.
+# Exemple : si la charge de ta batterie s'appelle sensor.ma_batterie_state_of_charge,
+# le prefix est « ma_batterie_ ».
+#
+# Capteurs utilisés pour chaque batterie (sensor.<prefix>…) :
+#   state_of_charge, capacity_remaining, full_charge_capacity, current, power,
+#   total_voltage, temperature_sensor_1, temperature_sensor_2, mosfet_temperature,
+#   charging_cycles, balancing_current, cell_voltage_1 … cell_voltage_16
+# Facultatifs : binary_sensor.<prefix>balancing, binary_sensor.<prefix>online_status,
+#   switch.<prefix>charging, switch.<prefix>discharging
+
+type: custom:batteries-duo-card
+title: Mes batteries
+nominal_voltage: 51.2      # tension nominale du parc (16S LiFePO4 = 51,2 V)
+reserve_soc: 20            # réserve (%) pour l'estimation d'autonomie
+rated_cycles: 6000         # durée de vie annoncée par le fabricant (cycles)
+cells: 16                  # nombre de cellules par batterie
+batteries:
+  - name: Batterie 1
+    prefix: esp32_batterie_1_
+    # Facultatif : réglages d'équilibrage exposés en « number » dans ESPHome
+    # balance_start: number.bms_1_tension_demarrage_equilibrage
+    # balance_trigger: number.bms_1_ecart_declenchement_equilibrage
+    # balance_current: number.bms_1_courant_equilibrage_max
+    # rated_cycles: 6000   # si cette batterie a une durée de vie différente
+  - name: Batterie 2
+    prefix: esp32_batterie_1_b2_
+    # balance_start: number.bms_2_tension_demarrage_equilibrage
+    # balance_trigger: number.bms_2_ecart_declenchement_equilibrage
+    # balance_current: number.bms_2_courant_equilibrage_max

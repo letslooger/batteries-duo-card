@@ -4,6 +4,8 @@ Une carte Home Assistant pour comparer deux batteries LiFePO4 (ou plus) branché
 
 🇬🇧 English version: [README.md](README.md)
 
+🎬 La vidéo : [2 batteries en parallèle : pourquoi l'une se vide toujours plus vite ?](https://youtu.be/lwJmwtKwEvQ)
+
 <p align="center"><img src="images/carte.png" width="460" alt="La carte complète"></p>
 
 ## Pourquoi

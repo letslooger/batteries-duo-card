@@ -42,6 +42,33 @@ Les données de tes JK-BMS dans Home Assistant grâce au composant ESPHome [esph
 
 Astuce : la carte est plus belle dans une vue de type « Panneau (1 carte) ».
 
+## Autres batteries (Deye, Pylontech, BMS lu en Modbus…)
+
+La carte est pensée pour les noms d'entités du composant esphome-jk-bms, mais elle marche avec n'importe quelle batterie : à la place du `prefix`, indique tes propres entités dans `entities`. Seule `state_of_charge` est obligatoire, les autres sont facultatives (un bloc sans données reste vide).
+
+```yaml
+type: custom:batteries-duo-card
+batteries:
+  - name: Batterie 1
+    entities:
+      state_of_charge: sensor.deye_batterie_1_soc
+      current: sensor.deye_batterie_1_courant
+      total_voltage: sensor.deye_batterie_1_tension
+      temperature_sensor_1: sensor.deye_batterie_1_temperature
+      charging_cycles: sensor.deye_batterie_1_cycles
+      capacity_remaining: sensor.deye_batterie_1_capacite_restante   # en Ah
+      full_charge_capacity: sensor.deye_batterie_1_capacite          # en Ah
+      cell_voltage_1: sensor.deye_batterie_1_cellule_1               # … jusqu'à cell_voltage_16
+  - name: Batterie 2
+    entities:
+      state_of_charge: sensor.deye_batterie_2_soc
+      current: sensor.deye_batterie_2_courant
+```
+
+Remplace ces noms par les tiens : Paramètres > Appareils et services > Entités, puis clique sur l'entité et la roue dentée pour voir son « ID d'entité ». Tu peux aussi mélanger les deux : un `prefix` et quelques `entities` pour remplacer seulement celles qui ont un autre nom.
+
+Clés possibles : `state_of_charge`, `capacity_remaining`, `full_charge_capacity`, `current`, `power`, `total_voltage`, `temperature_sensor_1`, `temperature_sensor_2`, `mosfet_temperature`, `charging_cycles`, `balancing_current`, `delta_cell_voltage`, `cell_voltage_1` à `cell_voltage_16`, `balancing` et `online_status` (binary_sensor), `charging` et `discharging` (switch).
+
 ## Afficher les réglages d'équilibrage
 
 La carte peut afficher les réglages d'équilibrage du BMS si ta configuration ESPHome les expose en entités `number`, par exemple :
@@ -65,6 +92,17 @@ Indique ensuite ces entités dans `balance_start`, `balance_trigger` et `balance
 Remplace le contenu de `/config/www/batteries-duo-card.js`, puis dans Paramètres > Tableaux de bord > Ressources, augmente le numéro de l'URL (`?v=1` devient `?v=2`) et recharge la page.
 
 ## Dépannage
+
+**« Custom element doesn't exist: batteries-duo-card »** : Home Assistant ne trouve pas le fichier de la carte. Vérifie dans l'ordre :
+1. Le fichier est bien dans `/config/www/` et s'appelle exactement `batteries-duo-card.js` (pas `batteries-duo-card.js.txt`, pas `batteries-duo-card (1).js`).
+2. C'est le vrai fichier : sur GitHub, ouvre `batteries-duo-card.js` puis clique sur le bouton de téléchargement (« Download raw file »). Un « clic droit > Enregistrer sous » sur la page GitHub enregistre une page web, pas la carte. Le fichier doit commencer par `/*` et faire environ 28 Ko.
+3. Si tu viens de créer le dossier `www`, redémarre Home Assistant (Paramètres > Système > Redémarrer) : il ne voit ce dossier qu'au démarrage.
+4. La ressource existe bien : Paramètres > Tableaux de bord > ⋮ > Ressources, URL `/local/batteries-duo-card.js?v=1`, type « Module JavaScript ».
+5. Vide le cache : Ctrl + F5 sur ordinateur. Sur l'appli téléphone : Paramètres de l'appli > Débogage > Réinitialiser le cache du frontend.
+
+Test rapide : ouvre `http://<adresse-de-ton-home-assistant>:8123/local/batteries-duo-card.js` dans ton navigateur. Tu dois voir du code qui commence par `/*`. Si tu as une erreur 404, le fichier n'est pas au bon endroit.
+
+**« Batterie 1 : indique un prefix ou des entities »** : chaque batterie a besoin d'un `prefix`, ou d'au moins `entities: state_of_charge`.
 
 **« Courant trop faible pour mesurer la répartition »** : c'est normal au repos. La répartition ne s'affiche que si les deux batteries chargent ou déchargent avec au moins 3 A au total.
 

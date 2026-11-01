@@ -11,6 +11,9 @@
 #   charging_cycles, balancing_current, cell_voltage_1 … cell_voltage_16
 # Facultatifs : binary_sensor.<prefix>balancing, binary_sensor.<prefix>online_status,
 #   switch.<prefix>charging, switch.<prefix>discharging
+#
+# Autre batterie (Deye, Pylontech…) ? Remplace « prefix » par « entities »
+# avec tes propres entités (voir LISEZMOI.md, « Autres batteries »).
 
 type: custom:batteries-duo-card
 title: Mes batteries

@@ -42,6 +42,33 @@ Your JK-BMS data in Home Assistant through the ESPHome component [esphome-jk-bms
 
 Tip: the card looks best on a "Panel (1 card)" view.
 
+## Other batteries (Deye, Pylontech, Modbus BMS…)
+
+The card is designed around the esphome-jk-bms entity names, but it works with any battery: instead of `prefix`, list your own entities under `entities`. Only `state_of_charge` is required; the rest are optional (a block without data stays empty).
+
+```yaml
+type: custom:batteries-duo-card
+batteries:
+  - name: Battery 1
+    entities:
+      state_of_charge: sensor.deye_battery_1_soc
+      current: sensor.deye_battery_1_current
+      total_voltage: sensor.deye_battery_1_voltage
+      temperature_sensor_1: sensor.deye_battery_1_temperature
+      charging_cycles: sensor.deye_battery_1_cycles
+      capacity_remaining: sensor.deye_battery_1_remaining_capacity   # Ah
+      full_charge_capacity: sensor.deye_battery_1_capacity           # Ah
+      cell_voltage_1: sensor.deye_battery_1_cell_1                   # … up to cell_voltage_16
+  - name: Battery 2
+    entities:
+      state_of_charge: sensor.deye_battery_2_soc
+      current: sensor.deye_battery_2_current
+```
+
+You can also combine both: a `prefix` plus a few `entities` to override only the ones named differently.
+
+Available keys: `state_of_charge`, `capacity_remaining`, `full_charge_capacity`, `current`, `power`, `total_voltage`, `temperature_sensor_1`, `temperature_sensor_2`, `mosfet_temperature`, `charging_cycles`, `balancing_current`, `delta_cell_voltage`, `cell_voltage_1` to `cell_voltage_16`, `balancing` and `online_status` (binary_sensor), `charging` and `discharging` (switch).
+
 ## Showing the balancing settings
 
 The card can display the BMS balancing settings if your ESPHome config exposes them as `number` entities, for example:
@@ -65,6 +92,15 @@ Then point `balance_start`, `balance_trigger` and `balance_current` to these ent
 Replace the content of `/config/www/batteries-duo-card.js`, then in Settings > Dashboards > Resources bump the URL number (`?v=1` becomes `?v=2`) and reload.
 
 ## Troubleshooting
+
+**"Custom element doesn't exist: batteries-duo-card"**: Home Assistant can't load the card file. Check, in order:
+1. The file is in `/config/www/` and named exactly `batteries-duo-card.js`.
+2. It is the real file: on GitHub open `batteries-duo-card.js` and use "Download raw file". Right-click > Save as on the GitHub page saves a web page, not the card. The file must start with `/*` and be about 28 KB.
+3. If you just created the `www` folder, restart Home Assistant: it only picks that folder up at startup.
+4. The resource exists: Settings > Dashboards > ⋮ > Resources, URL `/local/batteries-duo-card.js?v=1`, type "JavaScript module".
+5. Clear the cache: Ctrl + F5 on a computer; in the companion app, Settings > Companion app > Debugging > Reset frontend cache.
+
+Quick test: open `http://<your-home-assistant>:8123/local/batteries-duo-card.js` in a browser. You should see code starting with `/*`; a 404 means the file is not in the right place.
 
 **"Courant trop faible pour mesurer la répartition"**: normal at rest. The current share only shows when both batteries charge or discharge with at least 3 A in total.
 

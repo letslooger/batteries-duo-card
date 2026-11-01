@@ -20,6 +20,11 @@ class BatteriesDuoCard extends HTMLElement {
     if (!config || !Array.isArray(config.batteries) || !config.batteries.length) {
       throw new Error("Indique au moins une batterie dans « batteries »");
     }
+    config.batteries.forEach((b, i) => {
+      if (!b || (!b.prefix && !(b.entities && b.entities.state_of_charge))) {
+        throw new Error("Batterie " + (i + 1) + " : indique un « prefix » ou des « entities »");
+      }
+    });
     this._config = Object.assign(
       {
         title: "Mes batteries",
@@ -81,9 +86,15 @@ class BatteriesDuoCard extends HTMLElement {
     return s ? s.state === "on" : null;
   }
 
+  // Entité d'une batterie : celle indiquée dans « entities » si elle existe,
+  // sinon <domaine>.<prefix><clé> (noms du composant esphome-jk-bms).
+  _id(b, key, domain = "sensor") {
+    if (b.entities && b.entities[key]) return b.entities[key];
+    return domain + "." + (b.prefix || "") + key;
+  }
+
   _battery(b, i) {
-    const p = b.prefix;
-    const n = (x) => this._num("sensor." + p + x);
+    const n = (x) => this._num(this._id(b, x));
     const cells = [];
     for (let k = 1; k <= this._config.cells; k++) cells.push(n("cell_voltage_" + k));
     const valid = cells.filter((v) => !isNaN(v) && v > 0);
@@ -109,20 +120,20 @@ class BatteriesDuoCard extends HTMLElement {
       cmin,
       cmax,
       avg,
-      balancing: this._on("binary_sensor." + p + "balancing"),
-      chargeOk: this._on("switch." + p + "charging"),
-      dischargeOk: this._on("switch." + p + "discharging"),
-      online: this._on("binary_sensor." + p + "online_status"),
+      balancing: this._on(this._id(b, "balancing", "binary_sensor")),
+      chargeOk: this._on(this._id(b, "charging", "switch")),
+      dischargeOk: this._on(this._id(b, "discharging", "switch")),
+      online: this._on(this._id(b, "online_status", "binary_sensor")),
       balStart: b.balance_start ? this._num(b.balance_start) : NaN,
       balTrig: b.balance_trigger ? this._num(b.balance_trigger) : NaN,
       balMax: b.balance_current ? this._num(b.balance_current) : NaN,
-      socId: "sensor." + p + "state_of_charge",
+      socId: this._id(b, "state_of_charge"),
     };
   }
 
   async _loadStats() {
     if (!this._hass || !this._config) return;
-    const ids = this._config.batteries.map((b) => "sensor." + b.prefix + "state_of_charge");
+    const ids = this._config.batteries.map((b) => this._id(b, "state_of_charge"));
     try {
       const start = new Date(Date.now() - this._config.history_days * 864e5).toISOString();
       const r = await this._hass.callWS({
